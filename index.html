@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>圆形进度条</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312"/>
+    <script src="jquery-3.2.1.min.js"></script>
+    <script src="raphael-min.js"></script>
+    <style>
+        .container{
+            width:260px;height:300px;background:#f2f2f2;
+        }
+        #bg{
+            width:135px;height:135px;background:#fff;text-align:center;position:relative;margin:0 auto;
+        }
+        #bg .level{
+            position:absolute;top:36px;left:53px;color:#666;font-size:14px;font-family:Avenir-Book;
+        }
+        #bg .number{position:absolute;top:48px;left:55px;font-size:48px;color:#08B578}
+    </style>
+    <script>
+        var demo = {
+
+            paper: null,
+            init: function(){
+                //初始化Raphael画布
+                this.paper = Raphael("bg", 135, 135);
+                //把底图先画上去
+                //进度比例，0到1，在本例中我们画65%
+                //需要注意，下面的算法不支持画100%，要按99.99%来画
+                var all=120,now=100,
+                    percent = now/all,
+                    drawPercent = percent >= 1 ? 0.9999 : percent;
+                //开始计算各点的位置，见后图
+                //r1是内圆半径，r2是外圆半径
+                var r1 = 60, r2 = 65, PI = Math.PI,
+                    p1 = {
+                        x:67,
+                        y:5
+                    },
+                    p4 = {
+                        x:p1.x,
+                        y:p1.y +r2 - r1
+                    },
+                    p2 = {
+                        x:p1.x -r2 * Math.sin(2 * PI * (1 - drawPercent)),
+                        y:p1.y +r2 - r2 * Math.cos(2 * PI * (1 - drawPercent))
+                    },
+                    p3 = {
+                        x:p4.x - r1 * Math.sin(2 * PI * (1 - drawPercent)),
+                        y:p4.y +r1 - r1 * Math.cos(2 * PI * (1 - drawPercent))
+                    },
+                    path = [
+                        'M', p1.x, ' ', p1.y,
+                        'A', r2, ' ', r2, ' 0 ', percent > 0.5 ? 1 : 0, ' 1 ', p2.x, ' ', p2.y,
+                        'L', p3.x, ' ', p3.y,
+                        'A', r1, ' ', r1, ' 0 ', percent > 0.5 ? 1 : 0, ' 0 ', p4.x, ' ', p4.y,
+                        'Z'
+                    ].join('');
+                //用path方法画图形，由两段圆弧和两条直线组成，画弧线的算法见后
+                this.paper.path(path)
+                //填充渐变色，从#2bc9a6到#b1f43d
+                    .attr({"stroke-width":0, "stroke":"#fff", "fill":"90-#2bc9a6-#b1f43d"});
+
+            }
+        };
+        $(function(){
+            demo.init();
+        });
+    </script>
+</head>
+<body>
+<!-- 承载图形主体 -->
+<div class="container">
+    <div id="bg">
+        <span class="level">level</span>
+        <span class="number">3</span>
+    </div>
+</div>
+
+</body>
+</html>
